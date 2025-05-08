@@ -1,4 +1,4 @@
-# API Simples em PHP com MySQL (Docker)
+# API Simples para aula de Tópicos usando Docker Compose
 
 Este projeto cria uma API simples com PHP e MySQL usando Docker Compose. Você pode **listar** e **cadastrar usuários** com o Postman.
 
