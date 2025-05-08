@@ -23,7 +23,8 @@ Este projeto cria uma API simples com PHP e MySQL usando Docker Compose. Você p
 docker-compose up --build
 ```
 
-Se der erro com a porta 3306, no prompt escreva "netstat -ano | findstr :3306" Você verá uma linha como:
+Se der erro com a porta 3306, no prompt escreva "netstat -ano | findstr :3306" 
+Você verá uma linha como:
 
   TCP    0.0.0.0:3306     0.0.0.0:0      LISTENING       1234
 O número final (1234) é o PID (ID do processo)..
