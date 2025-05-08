@@ -30,7 +30,7 @@ O número final (1234) é o PID (ID do processo)..
 
 E finalize o processo que está usando a porta com o comando:
 
-"taskkill /PID 1234 /F
+"taskkill /PID 1234 /F"
 
 Substitua 1234 pelo PID que você encontrou.
 
@@ -46,7 +46,7 @@ Substitua 1234 pelo PID que você encontrou.
 
 Você verá algo como:
 
-```json
+```
 [
   {
     "id": 1,
@@ -65,7 +65,7 @@ Você verá algo como:
 - Body: `raw` > `JSON`  
 - Exemplo de corpo:
 
-```json
+```
 {
   "name": "Carlos",
   "email": "carlos@example.com"
