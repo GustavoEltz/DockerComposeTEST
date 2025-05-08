@@ -1,31 +1,99 @@
-# API Simples com PHP + MySQL via Docker Compose
+# API Simples em PHP com MySQL (Docker)
 
-## 📦 Requisitos
+Este projeto cria uma API simples com PHP e MySQL usando Docker Compose. Você pode **listar** e **cadastrar usuários** com o Postman.
+
+---
+
+## Requisitos
 
 - Docker
 - Docker Compose
+- Postman (para testar a API)
 
-## 🚀 Subindo o ambiente
+---
+
+## Como rodar o projeto
+
+1. **Clone ou baixe o projeto**
+2. Extraia em uma pasta no seu computador
+3. Abra o terminal dentro da pasta do projeto
+4. Rode o comando:
 
 ```bash
 docker-compose up --build
 ```
 
-- A aplicação estará acessível em: `http://localhost:8000`
-- O banco de dados MySQL será iniciado com uma tabela `users` já populada.
+Se der erro com a porta 3306, no prompt escreva "netstat -ano | findstr :3306" Você verá uma linha como:
 
-## 🔎 Como consumir a API
+  TCP    0.0.0.0:3306     0.0.0.0:0      LISTENING       1234
+O número final (1234) é o PID (ID do processo)..
 
-Via navegador ou Postman:
+E finalize o processo que está usando a porta com o comando:
 
+"taskkill /PID 1234 /F
+
+Substitua 1234 pelo PID que você encontrou.
+
+
+---
+
+## Como testar no Postman
+
+## Listar usuários (GET)
+
+- Método: `GET`
+- URL: `http://localhost:8000`
+
+Você verá algo como:
+
+```json
+[
+  {
+    "id": 1,
+    "name": "Alice",
+    "email": "alice@example.com"
+  }
+]
 ```
-GET http://localhost:8000
+
+---
+
+## Adicionar usuário (POST)
+
+- Método: `POST`
+- URL: `http://localhost:8000`
+- Body: `raw` > `JSON`  
+- Exemplo de corpo:
+
+```json
+{
+  "name": "Carlos",
+  "email": "carlos@example.com"
+}
 ```
 
-Retorna lista de usuários em JSON.
+Resposta:
 
-## 📁 Estrutura
+```json
+{
+  "message": "Usuário inserido com sucesso"
+}
+```
 
-- `app/`: Código PHP
-- `db/`: Script inicial do banco
-- `docker-compose.yml`: Orquestração dos containers
+---
+
+## parar tudo
+
+No terminal onde está rodando:
+
+```bash
+CTRL + C
+```
+
+Depois para apagar os containers:
+
+```bash
+docker-compose down
+```
+
+---
