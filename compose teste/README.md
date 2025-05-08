@@ -51,8 +51,8 @@ Você verá algo como:
 [
   {
     "id": 1,
-    "name": "Alice",
-    "email": "alice@example.com"
+    "name": "Postman da silva",
+    "email": "postzinhodorola@example.com"
   }
 ]
 ```
@@ -68,8 +68,8 @@ Você verá algo como:
 
 ```
 {
-  "name": "Carlos",
-  "email": "carlos@example.com"
+  "name": "Melancia Pereira",
+  "email": "melanciaBOA@example.com"
 }
 ```
 
