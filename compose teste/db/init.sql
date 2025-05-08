@@ -5,5 +5,6 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 INSERT INTO users (name, email) VALUES
-('Alice', 'alice@example.com'),
-('Bob', 'bob@example.com');
+('Postman da silva', 'postzinhodorola@example.com'),
+('Melancia Pereira', 'melanciaBOA@example.com'),
+('Gel Antisseptico Barbosa', 'cafécardoso@example.com');
