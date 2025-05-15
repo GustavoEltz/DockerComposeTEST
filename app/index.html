@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>User Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+    }
+    .card {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .input-field {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 8px 12px;
+      width: 100%;
+    }
+    .input-field:focus {
+      outline: none;
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+    }
+    .btn-primary {
+      background-color: #4f46e5;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .btn-primary:hover {
+      background-color: #4338ca;
+    }
+    .btn-danger {
+      background-color: #ef4444;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .btn-danger:hover {
+      background-color: #dc2626;
+    }
+    .btn-secondary {
+      background-color: #e5e7eb;
+      color: #374151;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .btn-secondary:hover {
+      background-color: #d1d5db;
+    }
+    .tab {
+      display: none;
+    }
+    .tab.active {
+      display: block;
+      animation: fadeIn 0.3s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .nav-tab {
+      background-color: transparent;
+      color: #6b7280;
+      border: none;
+      padding: 12px 20px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .nav-tab:hover {
+      color: #4f46e5;
+    }
+    .nav-tab.active {
+      color: #4f46e5;
+      border-bottom: 2px solid #4f46e5;
+    }
+    .user-card {
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .user-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+  <div class="container mx-auto px-4 py-8 max-w-6xl">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-800 mb-2">User Manager</h1>
+      <p class="text-gray-600">Manage your users easily</p>
+    </div>
+
+    <div class="flex mb-6 border-b">
+      <button class="nav-tab active" onclick="openTab(event, 'register')">
+        <i class="fas fa-user-plus mr-2"></i>Register User
+      </button>
+      <button class="nav-tab" onclick="openTab(event, 'list')">
+        <i class="fas fa-users mr-2"></i>User List
+      </button>
+    </div>
+
+    <div id="register" class="tab active">
+      <div class="card p-6 mb-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Register / Edit User</h2>
+        <form id="userForm">
+          <input type="hidden" id="userId" />
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2" for="name">Full Name</label>
+            <input type="text" id="name" class="input-field" placeholder="Enter full name" required />
+          </div>
+          <div class="mb-6">
+            <label class="block text-gray-700 mb-2" for="email">Email</label>
+            <input type="email" id="email" class="input-field" placeholder="Enter email" required />
+          </div>
+          <button type="submit" class="btn-primary">
+            <i class="fas fa-save mr-2"></i><span id="submitBtnText">Create User</span>
+          </button>
+          <div id="message" class="mt-4 text-center text-sm"></div>
+        </form>
+      </div>
+    </div>
+
+    <div id="list" class="tab">
+      <div class="card p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-semibold text-gray-800">User List</h2>
+          <div class="text-gray-500">
+            <span id="totalUsers">0</span> users
+          </div>
+        </div>
+
+        <div id="userList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="text-center py-8 text-gray-500">
+            <i class="fas fa-users text-4xl mb-2"></i>
+            <p>No users registered yet</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const apiUrl = "http://localhost:8000";
+
+    document.addEventListener("DOMContentLoaded", () => {
+      fetchUsers();
+    });
+
+    // Handle form submit for create or update
+    document.getElementById("userForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const id = document.getElementById("userId").value;
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const method = id ? "PUT" : "POST";
+      const url = id ? `${apiUrl}?id=${id}` : apiUrl;
+
+      if (!name || !email) {
+        showMessage("Please fill in all fields", "red");
+        return;
+      }
+
+      try {
+        const res = await fetch(url, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showMessage(data.message || "Success!", "green");
+          resetForm();
+          fetchUsers();
+          openTab(null, "list");
+        } else {
+          showMessage(data.error || "Error occurred", "red");
+        }
+      } catch (error) {
+        showMessage("Network error", "red");
+      }
+    });
+
+    async function fetchUsers() {
+      try {
+        const res = await fetch(apiUrl);
+        if (!res.ok) throw new Error("Failed to fetch users");
+        const users = await res.json();
+        renderUserList(users);
+      } catch {
+        const userList = document.getElementById("userList");
+        userList.innerHTML = `
+          <div class="text-center py-8 text-red-500">
+            <i class="fas fa-exclamation-triangle text-4xl mb-2"></i>
+            <p>Error loading users.</p>
+          </div>
+        `;
+        document.getElementById("totalUsers").textContent = 0;
+      }
+    }
+
+    function renderUserList(users) {
+      const userList = document.getElementById("userList");
+      userList.innerHTML = "";
+      if (users.length === 0) {
+        userList.innerHTML = `
+          <div class="text-center py-8 text-gray-500">
+            <i class="fas fa-users text-4xl mb-2"></i>
+            <p>No users registered yet</p>
+          </div>
+        `;
+        document.getElementById("totalUsers").textContent = 0;
+        return;
+      }
+
+      users.forEach((user) => {
+        const userCard = document.createElement("div");
+        userCard.className = "user-card p-4 border rounded shadow-sm flex flex-col justify-between";
+
+        userCard.innerHTML = `
+          <div>
+            <h3 class="text-lg font-semibold text-gray-800">${escapeHtml(user.name)}</h3>
+            <p class="text-gray-600">${escapeHtml(user.email)}</p>
+          </div>
+          <div class="mt-4 flex justify-end gap-2">
+            <button class="btn-secondary" onclick="editUser('${user.id}', '${escapeQuotes(user.name)}', '${escapeQuotes(user.email)}')" title="Edit">
+              <i class="fas fa-pen"></i>
+            </button>
+            <button class="btn-danger" onclick="deleteUser('${user.id}')" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        `;
+
+        userList.appendChild(userCard);
+      });
+
+      document.getElementById("totalUsers").textContent = users.length;
+    }
+
+    function editUser(id, name, email) {
+      openTab(null, "register");
+      document.getElementById("userId").value = id;
+      document.getElementById("name").value = name;
+      document.getElementById("email").value = email;
+      document.getElementById("submitBtnText").textContent = "Update User";
+      clearMessage();
+    }
+
+    async function deleteUser(id) {
+      if (!confirm("Are you sure you want to delete this user?")) return;
+
+      try {
+        const res = await fetch(`${apiUrl}?id=${id}`, {
+          method: "DELETE",
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showMessage(data.message || "User deleted", "green");
+          fetchUsers();
+        } else {
+          showMessage(data.error || "Failed to delete user", "red");
+        }
+      } catch {
+        showMessage("Network error", "red");
+      }
+    }
+
+    function resetForm() {
+      document.getElementById("userForm").reset();
+      document.getElementById("userId").value = "";
+      document.getElementById("submitBtnText").textContent = "Create User";
+      clearMessage();
+    }
+
+    function showMessage(msg, color = "green") {
+      const messageDiv = document.getElementById("message");
+      messageDiv.textContent = msg;
+      messageDiv.style.color = color;
+      setTimeout(() => {
+        messageDiv.textContent = "";
+      }, 3500);
+    }
+
+    function clearMessage() {
+      const messageDiv = document.getElementById("message");
+      messageDiv.textContent = "";
+    }
+
+    function openTab(evt, tabName) {
+      // Tabs
+      const tabs = document.querySelectorAll(".tab");
+      tabs.forEach((tab) => tab.classList.remove("active"));
+      document.getElementById(tabName).classList.add("active");
+
+      // Nav tabs
+      const navTabs = document.querySelectorAll(".nav-tab");
+      navTabs.forEach((tab) => tab.classList.remove("active"));
+      if (evt) evt.currentTarget.classList.add("active");
+    }
+
+    // Escape HTML to prevent injection in output
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // Escape quotes for inserting inside attribute values
+    function escapeQuotes(text) {
+      return text.replace(/'/g, "\\'").replace(/"/g, '\\"');
+    }
+  </script>
+</body>
+</html>
